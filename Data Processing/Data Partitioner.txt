@@ -1,0 +1,3 @@
+| inputlookup power_shell_data.csv 
+| sample partitions=3 fieldname=partition
+| outputlookup partitioned_data.csv

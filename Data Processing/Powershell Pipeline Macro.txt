@@ -1,0 +1,39 @@
+| eval powershell_commands=case(isnotnull($powershell_commands$),$powershell_commands$, isnull($powershell_commands$),"Missing Command") 
+| eval cmd_length = len(powershell_commands) 
+| eval lowercase_count=if(match(powershell_commands, "[a-z]"), len(replace(powershell_commands, "[^a-z]", "")), 0) 
+| eval uppercase_count=if(match(powershell_commands, "[A-Z]"), len(replace(powershell_commands, "[^A-Z]", "")), 0) 
+| eval alternating_case_ratio = round(uppercase_count/lowercase_count,2) 
+| eval base64_used = if(match(powershell_commands, "(?i)Base64"), 1, 0) 
+| eval encoded_command_used = if(match(powershell_commands, "(?i).*\\-(encodedcommand|enc|en|e|`e).*"), 1, 0) 
+| eval invoke_expression_used = if(match(powershell_commands, "(?i).*\\b(Invoke-Expression|iex|i`ex|ie`x|i`e`x)\\b.*"), 1, 0) 
+| eval char_used = if(match(powershell_commands, "(?i).*\\b([char])\\b.*"), 1, 0) 
+| eval byte_used = if(match(powershell_commands, "(?i).*\\b([byte])\\b.*"), 1, 0) 
+| eval memorystream_used = if(match(powershell_commands, "(?i).*\\bMemoryStream\\b.*"), 1, 0) 
+| eval unicode_used = if(match(powershell_commands, ".*`u\\{[A-Za-z0-9]+\\}.*"), 1, 0) 
+| eval utf8_used = if(match(powershell_commands, "(?i).*UTF8|utf8|utf.*"), 1, 0) 
+| eval powershell_commands = lower(powershell_commands) 
+| eval replace_used = if(match(powershell_commands, "(?i).*replace.*"), 1, 0) 
+| eval string_concat_used = if(match(powershell_commands, "\\$[A-Za-z0-9]+\\+\\$[A-Za-z0-9]+"), 1, 0) 
+| eval replace_count = mvcount(split(powershell_commands,"replace")) - 1 
+| rex field=powershell_commands max_match=0 ""(?<pattern>\$\w+\s*\+)"" 
+| eventstats count(pattern) as string_concat_count by powershell_commands 
+| eval dollar = mvcount(split(powershell_commands,"$"))-1 
+| eval plus = mvcount(split(powershell_commands,"+"))-1 
+| eval minus = mvcount(split(powershell_commands,"-"))-1 
+| eval substring = mvcount(split(powershell_commands,"substring"))-1 
+| eval repl = mvcount(split(powershell_commands,"replace"))-1 
+| eval split = mvcount(split(powershell_commands,"split"))-1 
+| eval join = mvcount(split(powershell_commands,"join"))-1 
+| eval trim = mvcount(split(powershell_commands,"trim"))-1 
+| eval toupper = mvcount(split(powershell_commands,"toupper"))-1 
+| eval tolower = mvcount(split(powershell_commands,"tolower"))-1 
+| eval match = mvcount(split(powershell_commands,"match"))-1 
+| eval length = mvcount(split(powershell_commands,"length"))-1 
+| eval tick = mvcount(split(powershell_commands,"`"))-1 
+| eval carrot = mvcount(split(powershell_commands,"^"))-1 
+| eval singlequote = mvcount(split(powershell_commands,"'"))-1 
+| eval equal = mvcount(split(powershell_commands,"="))-1 
+| eval percentage = mvcount(split(powershell_commands,"%"))-1 
+| eval string_manipultation_event = dollar + plus + minus + substring + repl + split + join + trim + toupper + tolower + match + length + tick + carrot + singlequote + equal + percentage 
+| eval string_manipulation_ratio = round(string_manipultation_event/cmd_length,2) 
+| fields - dollar plus minus substring repl split join trim toupper tolower match length tick carrot singlequote equal percentage pattern _time lowercase_count uppercase_count

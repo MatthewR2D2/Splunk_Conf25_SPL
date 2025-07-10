@@ -1,0 +1,27 @@
+| inputlookup partitioned_data.csv
+| where partition_number <2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| fit RandomForestClassifier label from alternating_case_ratio base64_used byte_used char_used cmd_length	encoded_command_used invoke_expression_used memorystream_used replace_count	replace_used string_concat_count string_concat_used string_manipulation_ratio string_manipultation_event unicode_used utf8_used into PS_RandomForest n_estimators=15 max_depth=10 criterion=entropy random_state=34 max_leaf_nodes=10
+| rename predicted(label) as pred 
+| score recall_score label against pred
+
+| inputlookup partitioned_data.csv
+| where partition_number <2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| fit LogisticRegression label from alternating_case_ratio base64_used byte_used char_used cmd_length encoded_command_used invoke_expression_used memorystream_used replace_count replace_used string_concat_count string_concat_used string_manipulation_ratio string_manipultation_event unicode_used utf8_used into PS_Probability probabilities=true 
+| rename predicted(label) as pred 
+| score roc_auc_score label against pred
+
+| inputlookup partitioned_data.csv
+| where partition_number <2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| fit DecisionTreeClassifier label from alternating_case_ratio base64_used byte_used char_used cmd_length encoded_command_used invoke_expression_used memorystream_used replace_count replace_used string_concat_count string_concat_used string_manipulation_ratio string_manipultation_event unicode_used utf8_used max_depth=10 criterion=entropy random_state=34 max_leaf_nodes=10 into PS_DecisionTree
+| rename predicted(label) as pred 
+| score recall_score label against pred
+
+| inputlookup partitioned_data.csv
+| where partition_number <2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| fit MLPClassifier label from alternating_case_ratio base64_used byte_used char_used cmd_length encoded_command_used invoke_expression_used memorystream_used replace_count replace_used string_concat_count string_concat_used string_manipulation_ratio string_manipultation_event unicode_used utf8_used batch_size=16 max_iter=100 random_state=42 hidden_layer_sizes=16-32-64-32-16 activation=relu solver=adam learning_rate=adaptive momentum=0.9 into PS_MLP
+| rename predicted(label) as pred 
+| score recall_score label against pred

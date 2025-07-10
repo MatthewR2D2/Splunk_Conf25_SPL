@@ -1,0 +1,35 @@
+Testing code for all models
+
+| inputlookup partitioned_data.csv
+| where partition_number =2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| apply PS_RandomForest 
+| rename predicted(label) as pred 
+| score recall_score label against pred
+
+| inputlookup partitioned_data.csv
+| where partition_number =2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| apply PS_Probability 
+| rename predicted(label) as pred 
+| score roc_auc_score label against pred
+
+| inputlookup partitioned_data.csv
+| where partition_number =2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| apply PS_DecisionTree 
+| rename predicted(label) as pred 
+| score recall_score label against pred
+
+| inputlookup partitioned_data.csv
+| where partition_number =2
+`PowerShell_Data_Pipeline(powershell_commands)`
+| apply PS_MLP 
+| rename predicted(label) as pred 
+| score recall_score label against pred
+
+
+
+
+
+
