@@ -1,4 +1,6 @@
 | eval powershell_commands=case(isnotnull($powershell_commands$),$powershell_commands$, isnull($powershell_commands$),"Missing Command") 
+| eval powershell_commands = replace(powershell_commands, "([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})", "MAC_Replace")
+| eval powershell_commands = replace(powershell_commands, "(https?://[^\s]+)", "URL_Replace") 
 | eval cmd_length = len(powershell_commands) 
 | eval lowercase_count=if(match(powershell_commands, "[a-z]"), len(replace(powershell_commands, "[^a-z]", "")), 0) 
 | eval uppercase_count=if(match(powershell_commands, "[A-Z]"), len(replace(powershell_commands, "[^A-Z]", "")), 0) 
@@ -36,4 +38,5 @@
 | eval percentage = mvcount(split(powershell_commands,"%"))-1 
 | eval string_manipultation_event = dollar + plus + minus + substring + repl + split + join + trim + toupper + tolower + match + length + tick + carrot + singlequote + equal + percentage 
 | eval string_manipulation_ratio = round(string_manipultation_event/cmd_length,2) 
+
 | fields - dollar plus minus substring repl split join trim toupper tolower match length tick carrot singlequote equal percentage pattern _time lowercase_count uppercase_count
