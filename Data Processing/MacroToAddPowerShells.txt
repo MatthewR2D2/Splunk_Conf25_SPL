@@ -1,0 +1,7 @@
+| table $label$ $power$
+| eval _time = now()
+| rename $power$ as powershell_commands $label$ as label 
+| append [inputlookup ps_examples.csv] 
+| dedup powershell_commands 
+| fields _time label powershell_commands 
+| outputlookup ps_examples.csv
