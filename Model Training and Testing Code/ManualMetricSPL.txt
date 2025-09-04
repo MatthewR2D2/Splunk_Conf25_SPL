@@ -1,0 +1,10 @@
+| eval true_positives=if(($pred$==1 AND $label$==1),1,0) 
+| eval false_positives=if(($pred$==1 AND $label$==0),1,0) 
+| eval true_negatives=if(($pred$==0 AND $label$==0),1,0) 
+| eval false_negatives=if(($pred$==0 AND $label$==1),1,0) 
+| stats sum(true_positives) as true_positives sum(false_positives) as false_positives sum(true_negatives) as true_negatives sum(false_negatives) as false_negatives count as total
+| eval precision = (true_positives/(true_positives + false_positives)) * 100
+| eval recall = (true_positives/(true_positives + false_negatives)) * 100
+| eval fscore = 2*((precision * recall)/(precision + recall)) 
+| eval accuracy = ((true_positives + true_negatives)/ (true_positives + false_positives + true_negatives + false_negatives)) * 100
+| table true_positives false_positives true_negatives false_negatives precision recall fscore accuracy
