@@ -1,0 +1,10 @@
+| inputlookup ps_examples.csv
+| stats sum(label) as mal_count
+| map maxsearches=1 search="| inputlookup  ps_examples.csv
+                            | where label=0
+                            | sample $mal_count$"
+| append
+    [| inputlookup ps_examples.csv
+     | where label = 1 ]
+| table label powershell_commands
+| outputlookup balanced_examples.csv
